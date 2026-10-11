@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tree Planting Homework</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;800&family=Nunito+Sans:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#F7F5EF; --surface:#FFFFFF; --ink:#1B2240; --muted:#5A6275; --line:#DCD8CC;
+  --navy:#1F2A5A; --navy-soft:#E8ECF7; --amber:#F2A900; --amber-ink:#8A5F00; --amber-soft:#FFF4D6;
+  --good:#2E7D4F; --good-soft:#E3F4E8; --bad:#B3261E; --bad-soft:#FCE4E4; --ng:#5A6275; --ng-soft:#EEF0F4;
+  --display:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; --body:'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12172E; --surface:#1B2244; --ink:#E8EBF5; --muted:#A3AAC4; --line:#2E3764;
+    --navy:#C9D2F2; --navy-soft:#252E5A; --amber:#F5B82E; --amber-ink:#F5C65A; --amber-soft:#3A3220;
+    --good:#6FCB94; --good-soft:#1C3A2A; --bad:#F08A82; --bad-soft:#442222; --ng:#B7BDD3; --ng-soft:#2A3050;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12172E; --surface:#1B2244; --ink:#E8EBF5; --muted:#A3AAC4; --line:#2E3764;
+  --navy:#C9D2F2; --navy-soft:#252E5A; --amber:#F5B82E; --amber-ink:#F5C65A; --amber-soft:#3A3220;
+  --good:#6FCB94; --good-soft:#1C3A2A; --bad:#F08A82; --bad-soft:#442222; --ng:#B7BDD3; --ng-soft:#2A3050;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55; padding-inline:16px; padding-block:0 48px}
+.wrap{max-width:860px; margin:0 auto}
+header{padding-block:28px 12px; display:flex; flex-direction:column; gap:6px}
+.eyebrow{font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--amber-ink)}
+h1{font-family:var(--display); font-weight:800; font-size:clamp(28px,6vw,42px); line-height:1.1; margin:0; color:var(--navy); text-wrap:balance}
+h2{font-family:var(--display); font-weight:600; font-size:22px; margin:0; color:var(--navy)}
+.sub{color:var(--muted); margin:0}
+.vi{color:var(--muted); font-style:italic}
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); padding-block:10px; display:flex; gap:8px; overflow-x:auto; border-bottom:1px solid var(--line)}
+nav button{flex:0 0 auto; font:700 14px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:8px 14px; border-radius:999px; cursor:pointer; display:flex; gap:8px; align-items:center}
+nav button[aria-selected="true"]{background:var(--navy); color:var(--bg); border-color:var(--navy)}
+nav .pts{font-variant-numeric:tabular-nums; font-weight:400; opacity:.85}
+section.panel{padding-block:22px; display:flex; flex-direction:column; gap:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px}
+button.btn{font:700 15px var(--body); border:0; border-radius:10px; padding:11px 18px; cursor:pointer; background:var(--navy); color:var(--bg)}
+button.btn.alt{background:var(--amber); color:#1F2A5A}
+button.btn.ghost{background:transparent; color:var(--navy); border:1px solid var(--line)}
+button:focus-visible, input:focus-visible, textarea:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.progress{height:6px; background:var(--line); border-radius:6px; overflow:hidden}
+.progress i{display:block; height:100%; background:var(--amber); width:0; transition:width .3s}
+
+/* flashcards */
+.flash{min-height:230px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:8px; cursor:pointer; user-select:none}
+.flash .word{font-family:var(--display); font-weight:800; font-size:clamp(26px,6vw,38px); color:var(--navy)}
+.flash .ipa{color:var(--muted)}
+.flash .mean{font-size:22px; font-weight:700; color:var(--amber-ink)}
+.flash .def{max-width:52ch}
+.hint{font-size:13px; color:var(--muted)}
+
+/* dictation */
+.dict{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:16px; align-items:start}
+@media (max-width:720px){.dict{grid-template-columns:1fr}}
+.dict-main{display:flex; flex-direction:column; gap:14px}
+.seg{display:inline-flex; align-self:center; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:4px; gap:2px}
+.seg button{font:700 14px var(--body); border:0; background:transparent; color:var(--muted); padding:7px 14px; border-radius:7px; cursor:pointer}
+.seg button[aria-checked="true"]{background:var(--navy); color:var(--bg)}
+.player{display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:var(--bg)}
+.player button{width:42px; height:42px; display:grid; place-items:center; border:0; border-radius:10px; background:transparent; color:var(--ink); cursor:pointer}
+.player button:hover{background:var(--navy-soft)}
+.player button.main{background:var(--amber); color:#1F2A5A}
+.player svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.player .spacer{flex:1}
+.player .rate{width:auto; padding:0 12px; font:700 14px var(--body)}
+.player.playing .main{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+.lbl{font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--amber-ink)}
+#d-in{min-height:96px; font-size:18px}
+.masks{display:flex; flex-wrap:wrap; gap:8px}
+.mask{display:flex; flex-direction:column; align-items:center; gap:3px}
+.mask button.eye{border:0; background:transparent; color:var(--muted); cursor:pointer; padding:0; height:18px}
+.mask button.eye svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2}
+.mask span{min-width:34px; text-align:center; padding:6px 10px; border-radius:7px; background:var(--surface); border:1px solid var(--line); font:700 15px/1.2 ui-monospace,Consolas,monospace; color:var(--navy); letter-spacing:.08em}
+.mask.ok span{background:var(--good-soft); border-color:var(--good); color:var(--good); font-family:var(--body); letter-spacing:0}
+.mask.rev span{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-ink); font-family:var(--body); letter-spacing:0}
+.mask.bad span{border-color:var(--bad)}
+button.btn.warn{background:transparent; color:var(--amber-ink); border:2px solid var(--amber)}
+.d-msg{font-weight:700; min-height:1.4em}
+.d-msg.ok{color:var(--good)} .d-msg.no{color:var(--bad)}
+.dict-side{display:flex; flex-direction:column; gap:10px; max-height:620px}
+.side-head{display:flex; justify-content:space-between; align-items:center}
+.side-head b{font-family:var(--display); color:var(--navy); letter-spacing:.06em; text-transform:uppercase; font-size:15px}
+.pct{font-variant-numeric:tabular-nums; font-weight:700; border:1px solid var(--line); border-radius:8px; padding:2px 10px}
+.items{display:flex; flex-direction:column; gap:8px; overflow-y:auto; padding-right:4px}
+.item{text-align:left; border:1px solid var(--line); background:var(--bg); color:var(--muted); border-radius:12px; padding:10px 12px; cursor:pointer; font:15px/1.45 var(--body); display:flex; flex-direction:column; gap:4px}
+.item .n{display:flex; justify-content:space-between; font-weight:700; font-size:13px; color:var(--ink)}
+.item.cur{border:2px solid var(--navy); background:var(--navy-soft)}
+.item.done{border:2px solid var(--good); color:var(--ink)}
+.item .stars{letter-spacing:.12em; font-family:ui-monospace,Consolas,monospace}
+/* listening */
+.listen-box{display:flex; flex-direction:column; gap:14px}
+.speaker{display:flex; align-items:center; gap:12px}
+.wave{display:flex; gap:3px; align-items:end; height:22px}
+.wave span{width:4px; background:var(--amber); border-radius:2px; height:6px}
+.playing .wave span{animation:w .8s ease-in-out infinite}
+.wave span:nth-child(2){animation-delay:.1s}.wave span:nth-child(3){animation-delay:.2s}.wave span:nth-child(4){animation-delay:.3s}
+@keyframes w{50%{height:22px}}
+input[type=text]{font:18px var(--body); padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); width:100%; max-width:420px}
+.reveal{border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:4px}
+.reveal.ok{background:var(--good-soft)} .reveal.no{background:var(--bad-soft)}
+.verdict{font-weight:700}
+.ok .verdict{color:var(--good)} .no .verdict{color:var(--bad)}
+
+/* reading */
+.passage{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px 22px; max-height:420px; overflow-y:auto}
+.passage h3{font-family:var(--display); margin:0 0 10px; color:var(--navy); font-size:20px}
+.passage p{margin:0 0 12px; max-width:68ch}
+.q{display:flex; flex-direction:column; gap:10px; padding-block:14px; border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.q .stmt{font-weight:700}
+.choices{display:flex; gap:8px; flex-wrap:wrap}
+.choices button{font:700 14px var(--body); padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer}
+.choices button.right{background:var(--good-soft); border-color:var(--good); color:var(--good)}
+.choices button.wrong{background:var(--bad-soft); border-color:var(--bad); color:var(--bad)}
+.choices button:disabled{cursor:default}
+.explain{font-size:15px; color:var(--muted)}
+
+/* writing */
+textarea{width:100%; min-height:190px; font:17px/1.6 var(--body); padding:14px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); resize:vertical}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{font-size:13px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted)}
+.chip.on{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-ink); font-weight:700}
+.meter{font-variant-numeric:tabular-nums; font-weight:700}
+.checklist{display:flex; flex-direction:column; gap:6px; margin:0; padding:0; list-style:none}
+.checklist li{display:flex; gap:8px; align-items:center}
+.dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 auto; display:grid; place-items:center; font-size:11px}
+.dot.on{background:var(--good); border-color:var(--good); color:var(--surface)}
+
+/* summary */
+.score-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px}
+.score{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.score b{font-family:var(--display); font-size:28px; color:var(--navy); font-variant-numeric:tabular-nums; display:block}
+footer{color:var(--muted); font-size:13px; padding-top:20px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+<style>
+.cam-link{display:inline-flex;align-items:center;gap:10px;background:#FF5500;color:#fff;font:700 16px var(--body);padding:12px 18px;border-radius:10px;text-decoration:none}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.qbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.qbox b{font-family:var(--display);color:var(--navy);min-width:28px}
+.qbox input{font:17px var(--body);border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);width:100%}
+.qbox.ok{border-color:var(--good);background:var(--good-soft)} .qbox.no{border-color:var(--bad);background:var(--bad-soft)}
+.expl{display:flex;flex-direction:column;gap:8px}
+.expl div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px}
+.timer{font-family:var(--display);font-size:42px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.rec{width:18px;height:18px;border-radius:50%;background:var(--bad);display:inline-block}
+.recording .rec{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.cue{background:var(--amber-soft);border-left:6px solid var(--amber);border-radius:10px;padding:16px 18px}
+.cue h3{margin:0 0 8px;font-family:var(--display);color:var(--navy)}
+.cue ul{margin:0;padding-left:20px}
+.src{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">IELTS Intermediate · Unit 1 · Lesson 2 · Homework</span>
+  <h1>Tree planting: practise at home</h1>
+  <p class="sub">Làm lần lượt 4 phần, khoảng 30–40 phút. Điểm hiện ở tab cuối — chụp màn hình gửi thầy Vũ Nguyên.</p>
+</header>
+
+<nav role="tablist" aria-label="Homework parts">
+  <button role="tab" id="t-cards" aria-selected="true" data-p="cards">1 · Flashcards</button>
+  <button role="tab" id="t-spell" aria-selected="false" data-p="spell">2 · Listen &amp; spell <span class="pts" id="pts-spell">0/12</span></button>
+  <button role="tab" id="t-cam" aria-selected="false" data-p="cam">3 · Cam 19 Part 4 <span class="pts" id="pts-cam">0/10</span></button>
+  <button role="tab" id="t-speak" aria-selected="false" data-p="speak">4 · Speaking Part 2</button>
+  <button role="tab" id="t-sum" aria-selected="false" data-p="sum">Kết quả</button>
+</nav>
+
+<!-- 1 FLASHCARDS -->
+<section class="panel" id="p-cards" role="tabpanel" aria-labelledby="t-cards">
+  <div><h2>12 forest words</h2><p class="vi">Bấm vào thẻ để lật. Bấm 🔊 để nghe phát âm Anh–Anh từ điển Oxford.</p></div>
+  <div class="progress"><i id="fc-bar"></i></div>
+  <div class="card flash" id="fc" tabindex="0" role="button" aria-label="Flip card"></div>
+  <div class="row" style="justify-content:space-between">
+    <button class="btn ghost" id="fc-prev">← Trước</button>
+    <span class="hint" id="fc-count"></span>
+    <div class="row"><button class="btn alt" id="fc-say">🔊 Nghe</button><button class="btn" id="fc-next">Tiếp →</button></div>
+  </div>
+  <p class="src">Phát âm: Oxford Learner's Dictionaries (oxfordlearnersdictionaries.com).</p>
+</section>
+
+<!-- 2 SPELL -->
+<section class="panel" id="p-spell" role="tabpanel" aria-labelledby="t-spell" hidden>
+  <div><h2>Listen and spell</h2><p class="vi">Âm thanh tự phát khi câu hỏi hiện ra. Gõ đúng chính tả từ em nghe được rồi nhấn Enter. Đáp án và nghĩa chỉ hiện sau khi em trả lời.</p></div>
+  <div class="progress"><i id="sp-bar"></i></div>
+  <div class="card listen-box" id="sp"></div>
+</section>
+
+<!-- 3 CAM -->
+<section class="panel" id="p-cam" role="tabpanel" aria-labelledby="t-cam" hidden>
+  <div><h2>Cambridge IELTS 19 · Test 4 · Questions 31–40</h2>
+  <p class="vi">Mở câu hỏi trong sách Cam 19 (hoặc bản photo thầy phát). Bấm nút màu cam để nghe trên SoundCloud, rồi gõ đáp án vào đây. Mỗi chỗ trống: <b>ONE WORD ONLY</b>.</p></div>
+  <div class="row"><a class="cam-link" id="cam-link" href="https://soundcloud.com/h-i-y-n-tr-nh-894031666/test4-part4-1" target="_blank" rel="noopener">▶ Nghe bài trên SoundCloud</a><span class="hint">Nghe 1 lần như thi thật, sau đó mới kiểm tra.</span></div>
+  <div class="qgrid" id="cam-q"></div>
+  <div class="row"><button class="btn" id="cam-check">Kiểm tra</button><button class="btn ghost" id="cam-reset">Làm lại</button><span class="meter" id="cam-score"></span></div>
+  <div class="expl" id="cam-expl"></div>
+</section>
+
+<!-- 4 SPEAK -->
+<section class="panel" id="p-speak" role="tabpanel" aria-labelledby="t-speak" hidden>
+  <div class="cue"><h3>Describe a park or green space you like to visit.</h3>
+    <p style="margin:0 0 6px">You should say:</p>
+    <ul><li>where it is</li><li>how often you go there</li><li>what you do there</li><li>and explain why you like it.</li></ul></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:12px">
+    <div class="row" style="justify-content:space-between"><b>Bước 1 · Chuẩn bị 1 phút — ghi từ khóa</b><span class="timer" id="prep-t">1:00</span></div>
+    <textarea id="sp-notes" aria-label="Your notes" placeholder="Từ khóa: Bách Thảo · Sunday mornings · walk around the lake · shade, cooler · biodiversity…" style="min-height:110px"></textarea>
+    <div class="row"><button class="btn alt" id="prep-start">Bắt đầu 1 phút chuẩn bị</button></div>
+  </div>
+  <div class="card" style="display:flex;flex-direction:column;gap:12px" id="rec-card">
+    <div class="row" style="justify-content:space-between"><b>Bước 2 · Ghi âm 1–2 phút</b><span class="timer" id="rec-t">0:00</span></div>
+    <div class="row"><button class="btn" id="rec-btn"><span class="rec"></span> Bắt đầu ghi âm</button><span class="hint" id="rec-msg">Trình duyệt sẽ hỏi quyền dùng micro.</span></div>
+    <audio id="rec-audio" controls hidden style="width:100%"></audio>
+  </div>
+  <div class="card"><b>Bước 3 · Tự chấm</b>
+    <ul class="checklist" id="self-check" style="margin-top:10px"></ul>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="panel" id="p-sum" role="tabpanel" aria-labelledby="t-sum" hidden>
+  <h2>Kết quả của em</h2>
+  <div class="score-grid">
+    <div class="score"><span class="hint">Flashcards đã xem</span><b id="s-cards">0/12</b></div>
+    <div class="score"><span class="hint">Listen &amp; spell</span><b id="s-spell">0/12</b></div>
+    <div class="score"><span class="hint">Cam 19 Part 4</span><b id="s-cam">–/10</b></div>
+    <div class="score"><span class="hint">Speaking tự chấm</span><b id="s-speak">0/5</b></div>
+  </div>
+  <p class="vi" id="s-msg"></p>
+  <div class="row"><button class="btn ghost" id="reset">Làm lại từ đầu</button></div>
+</section>
+
+<footer>Thầy Vũ Nguyên · IELTS Intermediate · Unit 1 Environment · <a href="index.html">Tất cả bài tập</a></footer>
+</div>
+
+<script>
+const V=[
+ {w:"reforestation",p:"n",ipa:"/ˌriːˌfɒrɪˈsteɪʃn/",vi:"trồng lại rừng",d:"planting trees in an area where a forest was cut down",ex:"Reforestation can help bring wildlife back to damaged land."},
+ {w:"native",p:"adj",ipa:"/ˈneɪtɪv/",vi:"bản địa",d:"growing naturally in a place, not brought from somewhere else",ex:"Native trees are usually better for local birds and insects."},
+ {w:"invasive",p:"adj",ipa:"/ɪnˈveɪsɪv/",vi:"xâm lấn (loài ngoại lai gây hại)",d:"spreading quickly and harming local species",ex:"Invasive plants can take water and light from native ones."},
+ {w:"species",p:"n",ipa:"/ˈspiːʃiːz/",vi:"loài",d:"a group of plants or animals of the same type",ex:"The project planted more than 30 different species of tree."},
+ {w:"restore",p:"v",ipa:"/rɪˈstɔː/",vi:"khôi phục",d:"to bring something back to its earlier, good condition",ex:"Volunteers are working to restore the forest after the fire."},
+ {w:"degraded",p:"adj",ipa:"/dɪˈɡreɪdɪd/",vi:"bị suy thoái",d:"damaged so that its quality is much worse",ex:"Trees grow slowly on degraded land with poor soil."},
+ {w:"grassland",p:"n",ipa:"/ˈɡrɑːslænd/",vi:"đồng cỏ",d:"a large area of land covered mainly with grass",ex:"Planting trees on natural grassland can harm the animals that live there."},
+ {w:"resilient",p:"adj",ipa:"/rɪˈzɪliənt/",vi:"có sức chống chịu, phục hồi tốt",d:"able to recover quickly from damage or difficult conditions",ex:"A forest with many species is more resilient to disease."},
+ {w:"drone",p:"n",ipa:"/drəʊn/",vi:"thiết bị bay không người lái",d:"a small aircraft without a pilot, controlled from the ground",ex:"Scientists use drones to take photos of the forest from above."},
+ {w:"mangrove",p:"n",ipa:"/ˈmæŋɡrəʊv/",vi:"rừng ngập mặn / cây đước",d:"a tropical tree that grows in salty water along coasts",ex:"Mangroves protect villages in Cà Mau from strong waves."},
+ {w:"coastal",p:"adj",ipa:"/ˈkəʊstl/",vi:"ven biển",d:"on or near the coast",ex:"Many coastal communities depend on the sea for work."},
+ {w:"livelihood",p:"n",ipa:"/ˈlaɪvlihʊd/",vi:"sinh kế",d:"the way a person earns money to live",ex:"When the mangroves disappeared, fishermen lost their livelihood."}
+];
+/* Oxford Learner's Dictionaries audio — set OX[w] to an exact mp3 URL when known; otherwise the standard path is tried (gb_1..3), then the browser voice */
+const OX={};
+const CAM=[
+ ["31","competition","Loài xâm lấn cạnh tranh với loài bản địa → danh từ “competition”. Bẫy: “threaten survival” là hậu quả, không phải từ cần điền."],
+ ["32","food","Rừng được phục hồi giúp người dân địa phương có thêm thực phẩm."],
+ ["33","disease","Đa dạng gen thấp → cây dễ mắc bệnh; đa dạng cao giúp chống bệnh. Người nói diễn đạt theo hướng phủ định."],
+ ["34","agriculture","Tránh trồng trên đất nông nghiệp vì sẽ đẩy nạn phá rừng sang nơi khác. Bẫy: grassland / wetland cũng được nhắc."],
+ ["35","maps","Kế hoạch dựa trên bản đồ chi tiết, cập nhật. Drone chỉ là công cụ. Viết “map” = sai (thiếu số nhiều)."],
+ ["36","cattle","Chăn nuôi gia súc được nhắc cùng khai thác gỗ trái phép ở Brazil (livestock ↔ cattle)."],
+ ["37","speed","Cây sung/vả làm tăng tốc độ phục hồi vì thu hút động vật phát tán hạt → danh từ “speed”."],
+ ["38","monkeys","Câu hỏi cần loài cụ thể, không phải “animals and birds”. Số nhiều."],
+ ["39","fishing","Mất rừng ngập mặn làm nghề đánh cá — sinh kế của nhiều người — khó duy trì."],
+ ["40","flooding","Rừng ngập mặn bảo vệ cộng đồng khỏi lũ lụt. Bẫy: climate change là nguyên nhân, không phải đáp án."]
+];
+const SELF=["Nói đủ 4 ý trong cue card","Nói được ít nhất 1 phút","Dùng ít nhất 3 từ mới (buổi 1 hoặc buổi 2)","Có ví dụ cụ thể (tên nơi, việc em làm)","Có câu giải thích “why I like it”"];
+
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('u1l2-'+k);const r=v?JSON.parse(v):null;return r==null?d:r}catch(e){return d}},set(k,v){try{localStorage.setItem('u1l2-'+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---- audio: Oxford mp3 first, browser voice only as last fallback ---- */
+function oxCandidates(w){
+  if(OX[w]) return [OX[w]];
+  const k=w.toLowerCase(), p=(k+'_____'), base='https://www.oxfordlearnersdictionaries.com/media/english/';
+  const path=`${k[0]}/${p.slice(0,3)}/${p.slice(0,5)}/${k}`;
+  return [1,2,3].map(n=>`${base}uk_pron/${path}__gb_${n}.mp3`).concat([1,2].map(n=>`${base}us_pron/${path}__us_${n}.mp3`));
+}
+function tts(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=speechSynthesis.getVoices().find(v=>/en-GB/i.test(v.lang));if(v)u.voice=v;u.lang='en-GB';u.rate=.9;if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
+let cur=null;
+function sayWord(w,onend){
+  const list=oxCandidates(w); let i=0;
+  try{ if(cur) cur.pause(); }catch(e){}
+  const next=()=>{
+    if(i>=list.length){ tts(w,onend); return; }
+    const a=new Audio(); cur=a; const src=list[i++];
+    a.onended=()=>{ OX[w]=src; if(onend) onend(); };
+    a.onerror=next;
+    a.src=src; a.play().catch(err=>{ if(err&&err.name==='NotAllowedError'){ if(onend) onend(); } else next(); });
+  };
+  next();
+}
+
+/* ---- tabs ---- */
+const tabs=[...document.querySelectorAll('nav button')];
+function show(p){tabs.forEach(t=>t.setAttribute('aria-selected',t.dataset.p===p));document.querySelectorAll('.panel').forEach(s=>s.hidden=s.id!=='p-'+p);if(p==='sum')summary();if(p==='spell')startSpell();}
+tabs.forEach(t=>t.onclick=()=>show(t.dataset.p));
+
+/* ---- flashcards ---- */
+let fi=0,flipped=false; const seen=new Set(store.get('seen',[]));
+function drawCard(){const v=V[fi];seen.add(fi);store.set('seen',[...seen]);
+  $('#fc').innerHTML=flipped?`<div class="mean">${esc(v.vi)}</div><div class="def">${esc(v.d)}</div><div class="vi">“${esc(v.ex)}”</div>`
+  :`<div class="word">${esc(v.w)}</div><div class="ipa">${v.p} · ${esc(v.ipa)}</div><div class="hint">Bấm để xem nghĩa</div>`;
+  $('#fc-count').textContent=`${fi+1} / ${V.length}`;$('#fc-bar').style.width=((fi+1)/V.length*100)+'%';}
+$('#fc').onclick=()=>{flipped=!flipped;drawCard()};
+$('#fc').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flipped=!flipped;drawCard()}};
+$('#fc-next').onclick=()=>{fi=(fi+1)%V.length;flipped=false;drawCard();sayWord(V[fi].w)};
+$('#fc-prev').onclick=()=>{fi=(fi-1+V.length)%V.length;flipped=false;drawCard();sayWord(V[fi].w)};
+$('#fc-say').onclick=()=>sayWord(V[fi].w);
+drawCard();
+
+/* ---- listen & spell ---- */
+let si=store.get('si',0), sres=store.get('sres',{}), spellStarted=false;
+const order=[3,0,7,11,9,2,5,8,1,6,4,10];
+function playSpell(){const box=$('#sp');box.classList.add('playing');sayWord(V[order[si]].w,()=>setTimeout(()=>{sayWord(V[order[si]].w,()=>box.classList.remove('playing'))},500));}
+function drawSpell(){const box=$('#sp');$('#sp-bar').style.width=(si/V.length*100)+'%';
+  if(si>=V.length){box.innerHTML=`<h2>Xong phần đánh vần!</h2><p>Em đúng <b>${Object.values(sres).filter(Boolean).length}/${V.length}</b> từ.</p><div class="row"><button class="btn" id="sp-again">Làm lại</button><button class="btn alt" id="sp-go">Sang Cam 19 Part 4 →</button></div>`;
+    $('#sp-again').onclick=()=>{si=0;sres={};store.set('si',0);store.set('sres',{});updatePts();drawSpell();playSpell()};$('#sp-go').onclick=()=>show('cam');return;}
+  box.innerHTML=`<div class="speaker"><span class="hint">Từ ${si+1} / ${V.length}</span><span class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span></span></div>
+   <label for="sp-in"><b>Type the word you hear:</b></label>
+   <input type="text" id="sp-in" autocomplete="off" spellcheck="false" autocapitalize="off">
+   <div class="row"><button class="btn" id="sp-check">Kiểm tra</button><button class="btn ghost" id="sp-replay">🔊 Nghe lại</button></div><div id="sp-reveal"></div>`;
+  $('#sp-replay').onclick=playSpell;
+  const check=()=>{const v=V[order[si]],ok=$('#sp-in').value.trim().toLowerCase()===v.w;sres[si]=ok;store.set('sres',sres);updatePts();
+    $('#sp-in').disabled=true;$('#sp-check').remove();
+    $('#sp-reveal').innerHTML=`<div class="reveal ${ok?'ok':'no'}"><span class="verdict">${ok?'✓ Correct!':'✗ Not quite'}</span><span>Answer: <b>${esc(v.w)}</b> <span class="hint">${v.p} · ${esc(v.ipa)}</span></span><span>${esc(v.vi)} — ${esc(v.d)}</span><span class="vi">“${esc(v.ex)}”</span></div>
+      <div class="row" style="margin-top:10px"><button class="btn alt" id="sp-next">${si+1<V.length?'Từ tiếp →':'Xem kết quả'}</button></div>`;
+    $('#sp-next').onclick=()=>{si++;store.set('si',si);drawSpell();if(si<V.length)playSpell()};setTimeout(()=>{const n=$('#sp-next');if(n)n.focus()},300);};
+  $('#sp-check').onclick=check;$('#sp-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check()}};setTimeout(()=>$('#sp-in')&&$('#sp-in').focus(),50);}
+function startSpell(){if(spellStarted)return;spellStarted=true;drawSpell();if(si<V.length)playSpell();}
+
+/* ---- Cam 19 ---- */
+let camAns=store.get('camAns',{}), camScore=store.get('camScore',null);
+$('#cam-q').innerHTML=CAM.map(q=>`<label class="qbox" id="qb${q[0]}"><b>${q[0]}</b><input data-q="${q[0]}" autocomplete="off" spellcheck="false" autocapitalize="off" value="${esc(camAns[q[0]]||'')}"></label>`).join('');
+document.querySelectorAll('#cam-q input').forEach(i=>i.oninput=()=>{camAns[i.dataset.q]=i.value;store.set('camAns',camAns)});
+function checkCam(){let n=0;$('#cam-expl').innerHTML='';
+  CAM.forEach(q=>{const v=(camAns[q[0]]||'').trim().toLowerCase(),ok=v===q[1];if(ok)n++;
+    $('#qb'+q[0]).className='qbox '+(ok?'ok':'no');
+    $('#cam-expl').insertAdjacentHTML('beforeend',`<div><b>${q[0]} · ${q[1]}</b> ${ok?'✓':'✗ (em viết: '+esc(v||'—')+')'} — ${esc(q[2])}</div>`);});
+  camScore=n;store.set('camScore',n);$('#cam-score').textContent=`${n} / 10`;updatePts();}
+$('#cam-check').onclick=checkCam;
+$('#cam-reset').onclick=()=>{camAns={};camScore=null;store.set('camAns',{});store.set('camScore',null);document.querySelectorAll('#cam-q input').forEach(i=>i.value='');document.querySelectorAll('.qbox').forEach(b=>b.className='qbox');$('#cam-expl').innerHTML='';$('#cam-score').textContent='';updatePts();};
+if(camScore!==null) checkCam();
+
+/* ---- speaking ---- */
+$('#sp-notes').value=store.get('notes','');$('#sp-notes').oninput=e=>store.set('notes',e.target.value);
+let prepT=null;$('#prep-start').onclick=()=>{clearInterval(prepT);let s=60;$('#prep-t').textContent='1:00';prepT=setInterval(()=>{s--;$('#prep-t').textContent=`0:${String(s).padStart(2,'0')}`;if(s<=0){clearInterval(prepT);$('#prep-t').textContent='Nói!';}},1000);$('#sp-notes').focus();};
+let rec=null,chunks=[],recT=null;
+$('#rec-btn').onclick=async()=>{
+  if(rec&&rec.state==='recording'){rec.stop();return;}
+  try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});rec=new MediaRecorder(stream);chunks=[];
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());clearInterval(recT);$('#rec-card').classList.remove('recording');
+      const a=$('#rec-audio');a.src=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType}));a.hidden=false;
+      $('#rec-btn').innerHTML='<span class="rec"></span> Ghi âm lại';$('#rec-msg').textContent='Nghe lại bài nói và tự chấm ở Bước 3.';};
+    rec.start();$('#rec-card').classList.add('recording');$('#rec-btn').textContent='■ Dừng ghi âm';let s=0;$('#rec-t').textContent='0:00';
+    recT=setInterval(()=>{s++;$('#rec-t').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;if(s>=150)rec.stop();},1000);
+  }catch(e){$('#rec-msg').textContent='Không mở được micro. Em có thể ghi âm bằng điện thoại thay thế.';}
+};
+let selfC=store.get('self',[]);
+$('#self-check').innerHTML=SELF.map((s,i)=>`<li><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" data-i="${i}" ${selfC.includes(i)?'checked':''}> ${esc(s)}</label></li>`).join('');
+document.querySelectorAll('#self-check input').forEach(c=>c.onchange=()=>{selfC=[...document.querySelectorAll('#self-check input:checked')].map(x=>+x.dataset.i);store.set('self',selfC);});
+
+/* ---- points & summary ---- */
+function updatePts(){$('#pts-spell').textContent=`${Object.values(sres).filter(Boolean).length}/12`;$('#pts-cam').textContent=`${camScore===null?0:camScore}/10`;}
+function summary(){const S=Object.values(sres).filter(Boolean).length;
+  $('#s-cards').textContent=`${seen.size}/12`;$('#s-spell').textContent=`${S}/12`;$('#s-cam').textContent=`${camScore===null?'–':camScore}/10`;$('#s-speak').textContent=`${selfC.length}/5`;
+  $('#s-msg').textContent=camScore===null?'Em chưa làm phần Cam 19 Part 4.':camScore>=8?'Rất tốt! Em đã vượt mục tiêu 6/10.':camScore>=6?'Đạt mục tiêu 6/10. Xem lại giải thích các câu sai nhé.':'Chưa đạt 6/10 — nghe lại bài trên SoundCloud và đọc giải thích từng câu.';}
+$('#reset').onclick=()=>{['si','sres','camAns','camScore','seen','self','notes'].forEach(k=>store.set(k,null));location.reload();};
+updatePts();
+</script>
+
+</body>
+</html>
