@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Line Graph Homework</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;800&family=Nunito+Sans:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#F7F5EF; --surface:#FFFFFF; --ink:#1B2240; --muted:#5A6275; --line:#DCD8CC;
+  --navy:#1F2A5A; --navy-soft:#E8ECF7; --amber:#F2A900; --amber-ink:#8A5F00; --amber-soft:#FFF4D6;
+  --good:#2E7D4F; --good-soft:#E3F4E8; --bad:#B3261E; --bad-soft:#FCE4E4; --ng:#5A6275; --ng-soft:#EEF0F4;
+  --display:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; --body:'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12172E; --surface:#1B2244; --ink:#E8EBF5; --muted:#A3AAC4; --line:#2E3764;
+    --navy:#C9D2F2; --navy-soft:#252E5A; --amber:#F5B82E; --amber-ink:#F5C65A; --amber-soft:#3A3220;
+    --good:#6FCB94; --good-soft:#1C3A2A; --bad:#F08A82; --bad-soft:#442222; --ng:#B7BDD3; --ng-soft:#2A3050;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12172E; --surface:#1B2244; --ink:#E8EBF5; --muted:#A3AAC4; --line:#2E3764;
+  --navy:#C9D2F2; --navy-soft:#252E5A; --amber:#F5B82E; --amber-ink:#F5C65A; --amber-soft:#3A3220;
+  --good:#6FCB94; --good-soft:#1C3A2A; --bad:#F08A82; --bad-soft:#442222; --ng:#B7BDD3; --ng-soft:#2A3050;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55; padding-inline:16px; padding-block:0 48px}
+.wrap{max-width:860px; margin:0 auto}
+header{padding-block:28px 12px; display:flex; flex-direction:column; gap:6px}
+.eyebrow{font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--amber-ink)}
+h1{font-family:var(--display); font-weight:800; font-size:clamp(28px,6vw,42px); line-height:1.1; margin:0; color:var(--navy); text-wrap:balance}
+h2{font-family:var(--display); font-weight:600; font-size:22px; margin:0; color:var(--navy)}
+.sub{color:var(--muted); margin:0}
+.vi{color:var(--muted); font-style:italic}
+nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); padding-block:10px; display:flex; gap:8px; overflow-x:auto; border-bottom:1px solid var(--line)}
+nav button{flex:0 0 auto; font:700 14px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:8px 14px; border-radius:999px; cursor:pointer; display:flex; gap:8px; align-items:center}
+nav button[aria-selected="true"]{background:var(--navy); color:var(--bg); border-color:var(--navy)}
+nav .pts{font-variant-numeric:tabular-nums; font-weight:400; opacity:.85}
+section.panel{padding-block:22px; display:flex; flex-direction:column; gap:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px}
+button.btn{font:700 15px var(--body); border:0; border-radius:10px; padding:11px 18px; cursor:pointer; background:var(--navy); color:var(--bg)}
+button.btn.alt{background:var(--amber); color:#1F2A5A}
+button.btn.ghost{background:transparent; color:var(--navy); border:1px solid var(--line)}
+button:focus-visible, input:focus-visible, textarea:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.progress{height:6px; background:var(--line); border-radius:6px; overflow:hidden}
+.progress i{display:block; height:100%; background:var(--amber); width:0; transition:width .3s}
+
+/* flashcards */
+.flash{min-height:230px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:8px; cursor:pointer; user-select:none}
+.flash .word{font-family:var(--display); font-weight:800; font-size:clamp(26px,6vw,38px); color:var(--navy)}
+.flash .ipa{color:var(--muted)}
+.flash .mean{font-size:22px; font-weight:700; color:var(--amber-ink)}
+.flash .def{max-width:52ch}
+.hint{font-size:13px; color:var(--muted)}
+
+/* dictation */
+.dict{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:16px; align-items:start}
+@media (max-width:720px){.dict{grid-template-columns:1fr}}
+.dict-main{display:flex; flex-direction:column; gap:14px}
+.seg{display:inline-flex; align-self:center; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:4px; gap:2px}
+.seg button{font:700 14px var(--body); border:0; background:transparent; color:var(--muted); padding:7px 14px; border-radius:7px; cursor:pointer}
+.seg button[aria-checked="true"]{background:var(--navy); color:var(--bg)}
+.player{display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:var(--bg)}
+.player button{width:42px; height:42px; display:grid; place-items:center; border:0; border-radius:10px; background:transparent; color:var(--ink); cursor:pointer}
+.player button:hover{background:var(--navy-soft)}
+.player button.main{background:var(--amber); color:#1F2A5A}
+.player svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.player .spacer{flex:1}
+.player .rate{width:auto; padding:0 12px; font:700 14px var(--body)}
+.player.playing .main{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+.lbl{font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--amber-ink)}
+#d-in{min-height:96px; font-size:18px}
+.masks{display:flex; flex-wrap:wrap; gap:8px}
+.mask{display:flex; flex-direction:column; align-items:center; gap:3px}
+.mask button.eye{border:0; background:transparent; color:var(--muted); cursor:pointer; padding:0; height:18px}
+.mask button.eye svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2}
+.mask span{min-width:34px; text-align:center; padding:6px 10px; border-radius:7px; background:var(--surface); border:1px solid var(--line); font:700 15px/1.2 ui-monospace,Consolas,monospace; color:var(--navy); letter-spacing:.08em}
+.mask.ok span{background:var(--good-soft); border-color:var(--good); color:var(--good); font-family:var(--body); letter-spacing:0}
+.mask.rev span{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-ink); font-family:var(--body); letter-spacing:0}
+.mask.bad span{border-color:var(--bad)}
+button.btn.warn{background:transparent; color:var(--amber-ink); border:2px solid var(--amber)}
+.d-msg{font-weight:700; min-height:1.4em}
+.d-msg.ok{color:var(--good)} .d-msg.no{color:var(--bad)}
+.dict-side{display:flex; flex-direction:column; gap:10px; max-height:620px}
+.side-head{display:flex; justify-content:space-between; align-items:center}
+.side-head b{font-family:var(--display); color:var(--navy); letter-spacing:.06em; text-transform:uppercase; font-size:15px}
+.pct{font-variant-numeric:tabular-nums; font-weight:700; border:1px solid var(--line); border-radius:8px; padding:2px 10px}
+.items{display:flex; flex-direction:column; gap:8px; overflow-y:auto; padding-right:4px}
+.item{text-align:left; border:1px solid var(--line); background:var(--bg); color:var(--muted); border-radius:12px; padding:10px 12px; cursor:pointer; font:15px/1.45 var(--body); display:flex; flex-direction:column; gap:4px}
+.item .n{display:flex; justify-content:space-between; font-weight:700; font-size:13px; color:var(--ink)}
+.item.cur{border:2px solid var(--navy); background:var(--navy-soft)}
+.item.done{border:2px solid var(--good); color:var(--ink)}
+.item .stars{letter-spacing:.12em; font-family:ui-monospace,Consolas,monospace}
+/* listening */
+.listen-box{display:flex; flex-direction:column; gap:14px}
+.speaker{display:flex; align-items:center; gap:12px}
+.wave{display:flex; gap:3px; align-items:end; height:22px}
+.wave span{width:4px; background:var(--amber); border-radius:2px; height:6px}
+.playing .wave span{animation:w .8s ease-in-out infinite}
+.wave span:nth-child(2){animation-delay:.1s}.wave span:nth-child(3){animation-delay:.2s}.wave span:nth-child(4){animation-delay:.3s}
+@keyframes w{50%{height:22px}}
+input[type=text]{font:18px var(--body); padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); width:100%; max-width:420px}
+.reveal{border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:4px}
+.reveal.ok{background:var(--good-soft)} .reveal.no{background:var(--bad-soft)}
+.verdict{font-weight:700}
+.ok .verdict{color:var(--good)} .no .verdict{color:var(--bad)}
+
+/* reading */
+.passage{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px 22px; max-height:420px; overflow-y:auto}
+.passage h3{font-family:var(--display); margin:0 0 10px; color:var(--navy); font-size:20px}
+.passage p{margin:0 0 12px; max-width:68ch}
+.q{display:flex; flex-direction:column; gap:10px; padding-block:14px; border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.q .stmt{font-weight:700}
+.choices{display:flex; gap:8px; flex-wrap:wrap}
+.choices button{font:700 14px var(--body); padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer}
+.choices button.right{background:var(--good-soft); border-color:var(--good); color:var(--good)}
+.choices button.wrong{background:var(--bad-soft); border-color:var(--bad); color:var(--bad)}
+.choices button:disabled{cursor:default}
+.explain{font-size:15px; color:var(--muted)}
+
+/* writing */
+textarea{width:100%; min-height:190px; font:17px/1.6 var(--body); padding:14px; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); resize:vertical}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{font-size:13px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted)}
+.chip.on{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-ink); font-weight:700}
+.meter{font-variant-numeric:tabular-nums; font-weight:700}
+.checklist{display:flex; flex-direction:column; gap:6px; margin:0; padding:0; list-style:none}
+.checklist li{display:flex; gap:8px; align-items:center}
+.dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line); flex:0 0 auto; display:grid; place-items:center; font-size:11px}
+.dot.on{background:var(--good); border-color:var(--good); color:var(--surface)}
+
+/* summary */
+.score-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px}
+.score{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.score b{font-family:var(--display); font-size:28px; color:var(--navy); font-variant-numeric:tabular-nums; display:block}
+footer{color:var(--muted); font-size:13px; padding-top:20px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+<style>
+.cam-link{display:inline-flex;align-items:center;gap:10px;background:#FF5500;color:#fff;font:700 16px var(--body);padding:12px 18px;border-radius:10px;text-decoration:none}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.qbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.qbox b{font-family:var(--display);color:var(--navy);min-width:28px}
+.qbox input{font:17px var(--body);border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);width:100%}
+.qbox.ok{border-color:var(--good);background:var(--good-soft)} .qbox.no{border-color:var(--bad);background:var(--bad-soft)}
+.expl{display:flex;flex-direction:column;gap:8px}
+.expl div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px}
+.timer{font-family:var(--display);font-size:42px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.rec{width:18px;height:18px;border-radius:50%;background:var(--bad);display:inline-block}
+.recording .rec{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.cue{background:var(--amber-soft);border-left:6px solid var(--amber);border-radius:10px;padding:16px 18px}
+.cue h3{margin:0 0 8px;font-family:var(--display);color:var(--navy)}
+.cue ul{margin:0;padding-left:20px}
+.src{font-size:12px;color:var(--muted)}
+.para-q{font-family:var(--display);font-size:24px;color:var(--navy);font-weight:600}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.opts button{font:700 16px var(--body);padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-align:left}
+.opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.tf{display:flex;gap:6px;flex-wrap:wrap}
+.tf button{font:700 13px var(--body);padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tf button[aria-pressed="true"]{background:var(--navy);color:var(--bg);border-color:var(--navy)}
+.qbox.tfq{flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="eyebrow">IELTS Intermediate · Unit 2 · Lesson 2 · Homework</span>
+  <h1>Line graphs: practise at home</h1>
+  <p class="sub">Làm lần lượt 5 phần, khoảng 45–50 phút. Điểm hiện ở tab cuối — chụp màn hình gửi thầy Vũ Nguyên.</p>
+</header>
+
+<nav role="tablist" aria-label="Homework parts">
+  <button role="tab" id="t-cards" aria-selected="true" data-p="cards">1 · Flashcards</button>
+  <button role="tab" id="t-spell" aria-selected="false" data-p="spell">2 · Listen &amp; spell <span class="pts" id="pts-spell">0/12</span></button>
+  <button role="tab" id="t-mcq" aria-selected="false" data-p="mcq">3 · Choose <span class="pts" id="pts-mcq">0/8</span></button>
+  <button role="tab" id="t-rw" aria-selected="false" data-p="rw">4 · Rewrite <span class="pts" id="pts-rw">0/5</span></button>
+  <button role="tab" id="t-write" aria-selected="false" data-p="write">5 · Write Task 1</button>
+  <button role="tab" id="t-sum" aria-selected="false" data-p="sum">Kết quả</button>
+</nav>
+
+<section class="panel" id="p-cards" role="tabpanel" aria-labelledby="t-cards">
+  <div><h2>12 words for trends</h2><p class="vi">Bấm vào thẻ để lật. Bấm 🔊 để nghe phát âm Anh–Anh từ điển Oxford.</p></div>
+  <div class="progress"><i id="fc-bar"></i></div>
+  <div class="card flash" id="fc" tabindex="0" role="button" aria-label="Flip card"></div>
+  <div class="row" style="justify-content:space-between">
+    <button class="btn ghost" id="fc-prev">← Trước</button>
+    <span class="hint" id="fc-count"></span>
+    <div class="row"><button class="btn alt" id="fc-say">🔊 Nghe</button><button class="btn" id="fc-next">Tiếp →</button></div>
+  </div>
+  <p class="src">Phát âm: Oxford Learner's Dictionaries (oxfordlearnersdictionaries.com).</p>
+</section>
+
+<section class="panel" id="p-spell" role="tabpanel" aria-labelledby="t-spell" hidden>
+  <div><h2>Listen and spell</h2><p class="vi">Âm thanh (Oxford) tự phát khi câu hỏi hiện ra. Gõ đúng chính tả từ em nghe được rồi nhấn Enter. Đáp án và nghĩa chỉ hiện sau khi em trả lời.</p></div>
+  <div class="progress"><i id="sp-bar"></i></div>
+  <div class="card listen-box" id="sp"></div>
+</section>
+
+<section class="panel" id="p-mcq" role="tabpanel" aria-labelledby="t-mcq" hidden>
+  <div><h2>Choose the correct answer</h2><p class="vi">Chọn từ/cụm từ đúng cho câu mô tả biểu đồ. Giải thích hiện sau khi em chọn.</p></div>
+  <div class="progress"><i id="mq-bar"></i></div>
+  <div class="card listen-box" id="mq"></div>
+</section>
+
+<section class="panel" id="p-rw" role="tabpanel" aria-labelledby="t-rw" hidden>
+  <div><h2>Rewrite: verb + adverb → adjective + noun</h2><p class="vi">Viết lại câu, bắt đầu bằng “There was a/an …”. Ví dụ: <i>Sales rose sharply.</i> → <i>There was a sharp rise in sales.</i></p></div>
+  <div class="progress"><i id="rw-bar"></i></div>
+  <div class="card listen-box" id="rw"></div>
+</section>
+
+<section class="panel" id="p-write" role="tabpanel" aria-labelledby="t-write" hidden>
+  <div class="cue"><h3>Cambridge IELTS 17 · Test 4 · Writing Task 1</h3>
+    <p style="margin:0">Mở sách (hoặc bản photo thầy gửi) để xem biểu đồ đường về số cửa hàng đóng cửa và mở mới ở một nước, 2011–2018. Viết <b>ít nhất 150 từ</b> trong <b>20 phút</b>. Bài nháp được lưu tự động trên máy em.</p></div>
+  <div class="row"><span class="timer" id="wr-t">20:00</span><button class="btn alt" id="wr-start">Bắt đầu bấm giờ 20 phút</button></div>
+  <textarea id="essay" aria-label="Your Task 1 answer" placeholder="The line graph compares …"></textarea>
+  <div class="row" style="justify-content:space-between"><span class="meter" id="wc">0 words</span><div class="row"><button class="btn ghost" id="copy">Sao chép bài để gửi thầy</button></div></div>
+  <span class="hint" id="copy-msg"></span>
+  <div class="card"><b>Tự kiểm tra trước khi nộp</b>
+    <ul class="checklist" id="wr-check" style="margin-top:10px"></ul>
+  </div>
+</section>
+
+<section class="panel" id="p-sum" role="tabpanel" aria-labelledby="t-sum" hidden>
+  <h2>Kết quả của em</h2>
+  <div class="score-grid">
+    <div class="score"><span class="hint">Flashcards đã xem</span><b id="s-cards">0/12</b></div>
+    <div class="score"><span class="hint">Listen &amp; spell</span><b id="s-spell">0/12</b></div>
+    <div class="score"><span class="hint">Choose</span><b id="s-mcq">0/8</b></div>
+    <div class="score"><span class="hint">Rewrite</span><b id="s-rw">0/5</b></div>
+    <div class="score"><span class="hint">Task 1 · số từ</span><b id="s-wc">0</b></div>
+    <div class="score"><span class="hint">Task 1 · checklist</span><b id="s-ck">0/6</b></div>
+  </div>
+  <p class="vi" id="s-msg"></p>
+  <div class="row"><button class="btn ghost" id="reset">Làm lại từ đầu (giữ bài viết)</button></div>
+</section>
+
+<footer>Thầy Vũ Nguyên · IELTS Intermediate · Unit 2 Technology · <a href="index.html">Tất cả bài tập</a> · <a href="review.html">Ôn tập từ vựng</a></footer>
+</div>
+
+<script>
+const V=[{"w": "rise", "p": "v / n", "ipa": "/raɪz/", "vi": "tăng", "d": "to go up; an increase", "ex": "The number of internet users rose from 20% to 70%."}, {"w": "decline", "p": "v / n", "ipa": "/dɪˈklaɪn/", "vi": "giảm", "d": "to become smaller or fewer; a decrease", "ex": "Sales of DVDs declined steadily after 2010."}, {"w": "fluctuate", "p": "v", "ipa": "/ˈflʌktʃueɪt/", "vi": "dao động, lên xuống", "d": "to go up and down many times", "ex": "Petrol prices fluctuated between 20,000 and 25,000 dong."}, {"w": "remain", "p": "v", "ipa": "/rɪˈmeɪn/", "vi": "giữ nguyên", "d": "to stay the same (remain stable / remain unchanged)", "ex": "The figure remained stable at about 40%."}, {"w": "peak", "p": "v / n", "ipa": "/piːk/", "vi": "đạt đỉnh; đỉnh", "d": "to reach the highest point", "ex": "Smartphone sales peaked at 5 million in 2019."}, {"w": "overtake", "p": "v", "ipa": "/ˌəʊvəˈteɪk/", "vi": "vượt qua", "d": "to become higher than something else", "ex": "Online shopping overtook in-store shopping in 2021."}, {"w": "sharply", "p": "adv", "ipa": "/ˈʃɑːpli/", "vi": "mạnh, đột ngột", "d": "quickly and by a large amount", "ex": "The price fell sharply in the second half of the year."}, {"w": "steadily", "p": "adv", "ipa": "/ˈstedəli/", "vi": "đều đặn", "d": "gradually and evenly", "ex": "The number of students rose steadily over the decade."}, {"w": "slightly", "p": "adv", "ipa": "/ˈslaɪtli/", "vi": "nhẹ, một chút", "d": "by a small amount", "ex": "The figure dropped slightly to 38%."}, {"w": "proportion", "p": "n", "ipa": "/prəˈpɔːʃn/", "vi": "tỷ lệ", "d": "a part of a whole, often as a percentage", "ex": "The proportion of people working from home doubled."}, {"w": "projected", "p": "adj", "ipa": "/prəˈdʒektɪd/", "vi": "được dự báo", "d": "expected in the future, based on present data", "ex": "The population is projected to reach 110 million by 2030."}, {"w": "respectively", "p": "adv", "ipa": "/rɪˈspektɪvli/", "vi": "lần lượt", "d": "in the same order as the things you mentioned", "ex": "Hanoi and Da Nang had 8 and 1 million people respectively."}];
+const OX={};
+
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('u2l2-'+k);const r=v?JSON.parse(v):null;return r==null?d:r}catch(e){return d}},set(k,v){try{localStorage.setItem('u2l2-'+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---- audio: Oxford mp3 first, browser voice only as last fallback ---- */
+function oxCandidates(w){
+  if(OX[w]) return [OX[w]];
+  const k=w.toLowerCase(), p=(k+'_____'), base='https://www.oxfordlearnersdictionaries.com/media/english/';
+  const path=`${k[0]}/${p.slice(0,3)}/${p.slice(0,5)}/${k}`;
+  return [1,2,3].map(n=>`${base}uk_pron/${path}__gb_${n}.mp3`).concat([1,2].map(n=>`${base}us_pron/${path}__us_${n}.mp3`));
+}
+function tts(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=speechSynthesis.getVoices().find(v=>/en-GB/i.test(v.lang));if(v)u.voice=v;u.lang='en-GB';u.rate=.9;if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
+let cur=null;
+function sayWord(w,onend){
+  const list=oxCandidates(w); let i=0;
+  try{ if(cur) cur.pause(); }catch(e){}
+  const next=()=>{
+    if(i>=list.length){ tts(w,onend); return; }
+    const a=new Audio(); cur=a; const src=list[i++];
+    a.onended=()=>{ OX[w]=src; if(onend) onend(); };
+    a.onerror=next;
+    a.src=src; a.play().catch(err=>{ if(err&&err.name==='NotAllowedError'){ if(onend) onend(); } else next(); });
+  };
+  next();
+}
+
+/* ---- tabs ---- */
+const tabs=[...document.querySelectorAll('nav button')];
+function show(p){tabs.forEach(t=>t.setAttribute('aria-selected',t.dataset.p===p));document.querySelectorAll('.panel').forEach(s=>s.hidden=s.id!=='p-'+p);scrollTo(0,0);if(p==='sum')summary();if(p==='spell')startSpell();if(p==='mcq')drawMQ();if(p==='rw')drawRW();}
+tabs.forEach(t=>t.onclick=()=>show(t.dataset.p));
+/* ---- flashcards ---- */
+let fi=0,flipped=false; const seen=new Set(store.get('seen',[]));
+function drawCard(){const v=V[fi];seen.add(fi);store.set('seen',[...seen]);
+  $('#fc').innerHTML=flipped?`<div class="mean">${esc(v.vi)}</div><div class="def">${esc(v.d)}</div><div class="vi">“${esc(v.ex)}”</div>`
+  :`<div class="word">${esc(v.w)}</div><div class="ipa">${v.p} · ${esc(v.ipa)}</div><div class="hint">Bấm để xem nghĩa</div>`;
+  $('#fc-count').textContent=`${fi+1} / ${V.length}`;$('#fc-bar').style.width=((fi+1)/V.length*100)+'%';}
+$('#fc').onclick=()=>{flipped=!flipped;drawCard()};
+$('#fc').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flipped=!flipped;drawCard()}};
+$('#fc-next').onclick=()=>{fi=(fi+1)%V.length;flipped=false;drawCard();sayWord(V[fi].w)};
+$('#fc-prev').onclick=()=>{fi=(fi-1+V.length)%V.length;flipped=false;drawCard();sayWord(V[fi].w)};
+$('#fc-say').onclick=()=>sayWord(V[fi].w);
+drawCard();
+
+/* ---- listen & spell ---- */
+let si=store.get('si',0), sres=store.get('sres',{}), spellStarted=false;
+const order=[2,0,5,9,4,7,1,10,3,11,6,8];
+function playSpell(){const box=$('#sp');box.classList.add('playing');sayWord(V[order[si]].w,()=>setTimeout(()=>{sayWord(V[order[si]].w,()=>box.classList.remove('playing'))},500));}
+function drawSpell(){const box=$('#sp');$('#sp-bar').style.width=(si/V.length*100)+'%';
+  if(si>=V.length){box.innerHTML=`<h2>Xong phần đánh vần!</h2><p>Em đúng <b>${Object.values(sres).filter(Boolean).length}/${V.length}</b> từ.</p><div class="row"><button class="btn" id="sp-again">Làm lại</button><button class="btn alt" id="sp-go">Sang phần chọn đáp án →</button></div>`;
+    $('#sp-again').onclick=()=>{si=0;sres={};store.set('si',0);store.set('sres',{});updatePts();drawSpell();playSpell()};$('#sp-go').onclick=()=>show('mcq');return;}
+  box.innerHTML=`<div class="speaker"><span class="hint">Từ ${si+1} / ${V.length}</span><span class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span></span></div>
+   <label for="sp-in"><b>Type the word you hear:</b></label>
+   <input type="text" id="sp-in" autocomplete="off" spellcheck="false" autocapitalize="off">
+   <div class="row"><button class="btn" id="sp-check">Kiểm tra</button><button class="btn ghost" id="sp-replay">🔊 Nghe lại</button></div><div id="sp-reveal"></div>`;
+  $('#sp-replay').onclick=playSpell;
+  const check=()=>{const v=V[order[si]],ok=$('#sp-in').value.trim().toLowerCase()===v.w;sres[si]=ok;store.set('sres',sres);updatePts();
+    $('#sp-in').disabled=true;$('#sp-check').remove();
+    $('#sp-reveal').innerHTML=`<div class="reveal ${ok?'ok':'no'}"><span class="verdict">${ok?'✓ Correct!':'✗ Not quite'}</span><span>Answer: <b>${esc(v.w)}</b> <span class="hint">${v.p} · ${esc(v.ipa)}</span></span><span>${esc(v.vi)} — ${esc(v.d)}</span><span class="vi">“${esc(v.ex)}”</span></div>
+      <div class="row" style="margin-top:10px"><button class="btn alt" id="sp-next">${si+1<V.length?'Từ tiếp →':'Xem kết quả'}</button></div>`;
+    $('#sp-next').onclick=()=>{si++;store.set('si',si);drawSpell();if(si<V.length)playSpell()};setTimeout(()=>{const n=$('#sp-next');if(n)n.focus()},300);};
+  $('#sp-check').onclick=check;$('#sp-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check()}};setTimeout(()=>$('#sp-in')&&$('#sp-in').focus(),50);}
+function startSpell(){if(spellStarted)return;spellStarted=true;drawSpell();if(si<V.length)playSpell();}
+
+/* ---- choose ---- */
+const MQ=[
+ {q:"The figure rose ___ 20% ___ 35% between 2000 and 2010.",o:["from … to","at … in","by … to","in … at"],a:0,e:"from + điểm đầu, to + điểm cuối."},
+ {q:"Smartphone sales peaked ___ 7,000 units in 2015.",o:["at","to","by","in"],a:0,e:"peak at + mức số liệu (đạt đỉnh tại …)."},
+ {q:"There was a ___ rise in the price of rice.",o:["sharp","sharply","sharpen","sharpness"],a:0,e:"Trước danh từ rise cần TÍNH TỪ: a sharp rise."},
+ {q:"The number of internet users increased ___ over the decade.",o:["steadily","steady","steadiness","steadied"],a:0,e:"Sau động từ increased cần TRẠNG TỪ: increased steadily."},
+ {q:"By 2040, the figure ___ just over 80%.",o:["is projected to reach","reached","has reached","was reaching"],a:0,e:"Số liệu tương lai (dự báo) → is projected / expected to + V."},
+ {q:"Indonesia ___ Thailand around the year 2000.",o:["overtook","overtaken","overtakes","was overtook"],a:0,e:"Quá khứ của overtake là overtook (bất quy tắc)."},
+ {q:"In 1970, Malaysia and Thailand had about 30% and 19% ___.",o:["respectively","relatively","respectfully","respective"],a:0,e:"respectively = lần lượt, theo đúng thứ tự vừa nêu."},
+ {q:"Which one should NOT be in the overview?",o:["detailed numbers","the main trends","the highest line","the overall change"],a:0,e:"Overview chỉ nêu xu hướng chính và điểm nổi bật, không có số chi tiết."}
+];
+let mi=store.get('mi',0), mres=store.get('mres',{});
+function drawMQ(){const box=$('#mq');$('#mq-bar').style.width=(mi/MQ.length*100)+'%';
+  if(mi>=MQ.length){box.innerHTML=`<h2>Xong phần chọn đáp án!</h2><p>Em đúng <b>${Object.values(mres).filter(Boolean).length}/${MQ.length}</b>.</p><div class="row"><button class="btn" id="mq-again">Làm lại</button><button class="btn alt" id="mq-go">Sang Rewrite →</button></div>`;
+    $('#mq-again').onclick=()=>{mi=0;mres={};store.set('mi',0);store.set('mres',{});updatePts();drawMQ()};$('#mq-go').onclick=()=>show('rw');return;}
+  const q=MQ[mi]; const order=[0,1,2,3].sort(()=>Math.random()-.5);
+  box.innerHTML=`<span class="hint">Câu ${mi+1} / ${MQ.length}</span><div class="para-q">${esc(q.q)}</div><div class="opts">${order.map(i=>`<button data-i="${i}">${esc(q.o[i])}</button>`).join('')}</div><div id="mq-rev"></div>`;
+  box.querySelectorAll('.opts button').forEach(bt=>bt.onclick=()=>{const ok=+bt.dataset.i===q.a;mres[mi]=ok;store.set('mres',mres);updatePts();
+    box.querySelectorAll('.opts button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('right');else if(x===bt)x.classList.add('wrong');});
+    $('#mq-rev').innerHTML=`<div class="reveal ${ok?'ok':'no'}"><span class="verdict">${ok?'✓ Correct!':'✗ Not quite'}</span><span>Đáp án: <b>${esc(q.o[q.a])}</b></span><span>${esc(q.e)}</span></div><div class="row" style="margin-top:10px"><button class="btn alt" id="mq-next">${mi+1<MQ.length?'Câu tiếp →':'Xem kết quả'}</button></div>`;
+    $('#mq-next').onclick=()=>{mi++;store.set('mi',mi);drawMQ()};setTimeout(()=>{const n=$('#mq-next');if(n)n.focus()},200);});
+}
+
+/* ---- rewrite ---- */
+const RW=[
+ ["Sales rose sharply.","There was a sharp rise in sales."],
+ ["The price declined slightly.","There was a slight decline in the price."],
+ ["The number of visitors increased dramatically.","There was a dramatic increase in the number of visitors."],
+ ["Exports fell steadily.","There was a steady fall in exports."],
+ ["The proportion dropped gradually.","There was a gradual drop in the proportion."]
+];
+const normS=s=>s.trim().toLowerCase().replace(/[.!]+$/,'').replace(/\s+/g,' ');
+let ri=store.get('ri',0), rres=store.get('rres',{});
+function drawRW(){const box=$('#rw');$('#rw-bar').style.width=(ri/RW.length*100)+'%';
+  if(ri>=RW.length){box.innerHTML=`<h2>Xong phần viết lại câu!</h2><p>Em đúng <b>${Object.values(rres).filter(Boolean).length}/${RW.length}</b>.</p><div class="row"><button class="btn" id="rw-again">Làm lại</button><button class="btn alt" id="rw-go">Sang Write Task 1 →</button></div>`;
+    $('#rw-again').onclick=()=>{ri=0;rres={};store.set('ri',0);store.set('rres',{});updatePts();drawRW()};$('#rw-go').onclick=()=>show('write');return;}
+  const r=RW[ri];
+  box.innerHTML=`<span class="hint">Câu ${ri+1} / ${RW.length}</span><div class="para-q">${esc(r[0])}</div><label for="rw-in"><b>There was …</b></label><input type="text" id="rw-in" autocomplete="off" spellcheck="false" value="There was " style="max-width:100%"><div class="row"><button class="btn" id="rw-chk">Kiểm tra</button></div><div id="rw-rev"></div>`;
+  const chk=()=>{const v=$('#rw-in').value, ok=normS(v)===normS(r[1]);rres[ri]=ok;store.set('rres',rres);updatePts();$('#rw-in').disabled=true;$('#rw-chk').remove();
+    $('#rw-rev').innerHTML=`<div class="reveal ${ok?'ok':'no'}"><span class="verdict">${ok?'✓ Correct!':'✗ Chưa khớp — so sánh với đáp án'}</span><span>Đáp án: <b>${esc(r[1])}</b></span><span class="hint">Trạng từ → tính từ (sharply → sharp) · động từ → danh từ (rose → rise) · thêm “in” trước đối tượng.</span></div><div class="row" style="margin-top:10px"><button class="btn alt" id="rw-next">${ri+1<RW.length?'Câu tiếp →':'Xem kết quả'}</button></div>`;
+    $('#rw-next').onclick=()=>{ri++;store.set('ri',ri);drawRW()};setTimeout(()=>{const n=$('#rw-next');if(n)n.focus()},200);};
+  $('#rw-chk').onclick=chk;$('#rw-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();chk();}};setTimeout(()=>{const i=$('#rw-in');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},50);
+}
+
+/* ---- write ---- */
+const CK=["Mở bài viết lại đề, không chép nguyên văn","Có đoạn tổng quan (overview): 2 xu hướng chính, không có số chi tiết","Chia số liệu thành 2 đoạn thân bài (cửa hàng mở / cửa hàng đóng)","Mỗi câu thân bài có số liệu và so sánh","Dùng ít nhất 4 từ mới (rise, decline, peak, overtake, sharply…)","Ít nhất 150 từ, không nêu ý kiến cá nhân hay nguyên nhân"];
+const essay=$('#essay'); essay.value=store.get('essay','');
+const wcount=s=>(s.trim().match(/\S+/g)||[]).length;
+function updWC(){const n=wcount(essay.value);$('#wc').textContent=`${n} words`+(n<150?` · cần thêm ${150-n}`:' · đủ 150 từ ✓');}
+essay.oninput=()=>{store.set('essay',essay.value);updWC();}; updWC();
+let ck=store.get('ck',[]);
+$('#wr-check').innerHTML=CK.map((s,i)=>`<li><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" data-i="${i}" ${ck.includes(i)?'checked':''}> ${esc(s)}</label></li>`).join('');
+document.querySelectorAll('#wr-check input').forEach(c=>c.onchange=()=>{ck=[...document.querySelectorAll('#wr-check input:checked')].map(x=>+x.dataset.i);store.set('ck',ck);});
+let wrT=null;$('#wr-start').onclick=()=>{clearInterval(wrT);let s=1200;wrT=setInterval(()=>{s--;$('#wr-t').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;if(s<=0){clearInterval(wrT);$('#wr-t').textContent='Hết giờ!';}},1000);essay.focus();};
+$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(essay.value);$('#copy-msg').textContent='Đã sao chép — dán vào tin nhắn gửi thầy.';}catch(e){essay.select();$('#copy-msg').textContent='Không tự sao chép được — bài đã được chọn, nhấn Ctrl+C (hoặc giữ để sao chép trên điện thoại).';}};
+
+/* ---- tabs hook, points & summary ---- */
+function updatePts(){$('#pts-spell').textContent=`${Object.values(sres).filter(Boolean).length}/12`;$('#pts-mcq').textContent=`${Object.values(mres).filter(Boolean).length}/8`;$('#pts-rw').textContent=`${Object.values(rres).filter(Boolean).length}/5`;}
+function summary(){
+  $('#s-cards').textContent=`${seen.size}/12`;$('#s-spell').textContent=`${Object.values(sres).filter(Boolean).length}/12`;$('#s-mcq').textContent=`${Object.values(mres).filter(Boolean).length}/8`;$('#s-rw').textContent=`${Object.values(rres).filter(Boolean).length}/5`;
+  const n=wcount(essay.value);$('#s-wc').textContent=n;$('#s-ck').textContent=`${ck.length}/6`;
+  $('#s-msg').textContent=n===0?'Em chưa viết bài Task 1.':n<150?'Bài viết chưa đủ 150 từ — viết thêm trước khi nộp.':ck.length<6?'Bài đủ độ dài. Kiểm tra lại các mục checklist chưa đánh dấu rồi gửi thầy.':'Tốt lắm! Sao chép bài ở tab 5 và gửi thầy.';}
+$('#reset').onclick=()=>{['si','sres','mi','mres','ri','rres','seen'].forEach(k=>store.set(k,null));location.reload();};
+updatePts();
+</script>
+
+</body>
+</html>
